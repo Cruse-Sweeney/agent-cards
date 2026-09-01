@@ -1,0 +1,68 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Fraud Signal Agent",
+  "description": "Scores a claim for fraud indicators and explains which signals fired.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/fraud-signal/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Special Investigations \u2014 Claims",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "score-fraud-risk",
+      "name": "Score fraud risk",
+      "description": "Returns a 0-100 fraud risk score for a claim record with contributing signals.",
+      "tags": [
+        "insurance",
+        "fraud",
+        "risk",
+        "scoring",
+        "self-hosted",
+        "claims"
+      ],
+      "examples": [
+        "{\"policy_id\":\"AU-9920\",\"incident_type\":\"theft\",\"estimated_amount_usd\":41000}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "explain-risk-factors",
+      "name": "Explain risk factors",
+      "description": "Plain-language explanation of why a claim scored the way it did, for an investigator.",
+      "tags": [
+        "insurance",
+        "fraud",
+        "explainability",
+        "self-hosted",
+        "claims"
+      ],
+      "examples": [
+        "Explain the score for claim CLM-2026-0442"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ]
+}

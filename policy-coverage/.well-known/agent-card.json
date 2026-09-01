@@ -1,0 +1,67 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Policy Coverage Agent",
+  "description": "Checks a structured claim against the policy book and returns a coverage opinion.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/policy-coverage/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Claims Platform \u2014 Claims",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "check-coverage",
+      "name": "Check policy coverage",
+      "description": "Given a claim record, returns coverage status, deductible and any exclusion that applies.",
+      "tags": [
+        "insurance",
+        "coverage",
+        "policy",
+        "google",
+        "claims"
+      ],
+      "examples": [
+        "{\"policy_id\":\"HO-4471\",\"incident_type\":\"water_damage\"}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "lookup-policy",
+      "name": "Look up a policy",
+      "description": "Returns the policy record for a policy number, including limits and exclusions.",
+      "tags": [
+        "insurance",
+        "policy",
+        "lookup",
+        "google",
+        "claims"
+      ],
+      "examples": [
+        "HO-4471"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}

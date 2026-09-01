@@ -1,0 +1,67 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Underwriting Risk Scorer",
+  "description": "Scores a new-business applicant and proposes a premium band.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/risk-scoring/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Underwriting Data Science \u2014 Underwriting",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "score-applicant",
+      "name": "Score an applicant",
+      "description": "Returns a risk tier and the factors driving it for a submitted application.",
+      "tags": [
+        "insurance",
+        "underwriting",
+        "risk",
+        "openai",
+        "underwriting"
+      ],
+      "examples": [
+        "{\"applicant\":\"...\",\"property_year_built\":1961}"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "price-premium",
+      "name": "Propose a premium",
+      "description": "Suggests a premium band for a scored applicant against the current rate table.",
+      "tags": [
+        "insurance",
+        "underwriting",
+        "pricing",
+        "openai",
+        "underwriting"
+      ],
+      "examples": [
+        "Price a HO-3 for risk tier B in ZIP 80206"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}

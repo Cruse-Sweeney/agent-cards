@@ -1,0 +1,68 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Document Intake Agent",
+  "description": "Classifies and extracts text from inbound documents before routing them.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/document-ocr/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Shared Services \u2014 Servicing",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "classify-document",
+      "name": "Classify a document",
+      "description": "Labels an inbound document as claim form, estimate, police report, invoice or other.",
+      "tags": [
+        "ocr",
+        "classification",
+        "intake",
+        "self-hosted",
+        "servicing"
+      ],
+      "examples": [
+        "Classify this uploaded PDF"
+      ],
+      "inputModes": [
+        "application/pdf",
+        "image/jpeg"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "extract-document-text",
+      "name": "Extract document text",
+      "description": "Returns structured text and tables from a scanned document.",
+      "tags": [
+        "ocr",
+        "extraction",
+        "self-hosted",
+        "servicing"
+      ],
+      "examples": [
+        "Extract the text and tables from this scan"
+      ],
+      "inputModes": [
+        "application/pdf",
+        "image/jpeg"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}

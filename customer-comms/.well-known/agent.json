@@ -1,0 +1,67 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Customer Communications Agent",
+  "description": "Drafts claimant-facing correspondence in plain language at a set reading level.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/customer-comms/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Customer Experience \u2014 Servicing",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "draft-claimant-letter",
+      "name": "Draft a claimant letter",
+      "description": "Writes an approval, denial or information-request letter from a decision record.",
+      "tags": [
+        "insurance",
+        "communications",
+        "drafting",
+        "anthropic",
+        "servicing"
+      ],
+      "examples": [
+        "Draft a denial letter for claim CLM-2026-0451"
+      ],
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    },
+    {
+      "id": "summarize-for-customer",
+      "name": "Summarise for a customer",
+      "description": "Rewrites an internal decision into language a claimant can act on.",
+      "tags": [
+        "insurance",
+        "communications",
+        "summarisation",
+        "anthropic",
+        "servicing"
+      ],
+      "examples": [
+        "Explain this adjudication to the policyholder"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Data Quality Agent",
+  "description": "Profiles pipeline output and reports drift and schema violations.",
+  "url": "https://cruse-sweeney.github.io/agent-cards/data-quality/",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Data Engineering \u2014 Platform",
+    "url": "https://cruse-sweeney.github.io/agent-cards"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "profile-dataset",
+      "name": "Profile a dataset",
+      "description": "Returns null rates, cardinality and distribution shifts for a named table.",
+      "tags": [
+        "data",
+        "quality",
+        "profiling",
+        "self-hosted",
+        "platform"
+      ],
+      "examples": [
+        "Profile claims.fact_claim for the last 7 days"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}

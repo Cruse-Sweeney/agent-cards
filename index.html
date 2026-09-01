@@ -1,0 +1,49 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Agent Cards</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+ :root{color-scheme:light dark}
+ body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+ h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+ p.sub{color:#667;margin:0 0 28px}
+ table{border-collapse:collapse;width:100%;font-size:14px}
+ th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+     color:#889;border-bottom:1px solid #8884;padding:0 12px 8px 0}
+ td{border-bottom:1px solid #8882;padding:11px 12px 11px 0;vertical-align:top}
+ .d{color:#778;font-size:12.5px;margin-top:2px}
+ code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace}
+ pre{background:#8881;padding:14px 16px;border-radius:8px;overflow-x:auto;
+     font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+ h2{font-size:15px;margin:38px 0 10px}
+</style>
+<h1>Agent Cards</h1>
+<p class="sub">11 A2A agent cards &middot; 18 skills &middot; static fixtures for the Gravitee Agent Catalog.
+These are spec-valid cards at stable URLs; the agents behind them are not running.</p>
+<table>
+<tr><th>Agent</th><th>Domain</th><th>Owner</th><th>Vendor</th><th>Skills</th><th>Card</th></tr>
+<tr><td><b>Claim Intake Agent</b><div class="d">Extracts structured claim facts from an unstructured customer message.</div></td><td>Claims</td><td>Claims Platform</td><td>Anthropic<div class="d">claude-opus-5</div></td><td>1</td><td><a href="claim-intake/.well-known/agent-card.json"><code>claim-intake</code></a></td></tr>
+<tr><td><b>Policy Coverage Agent</b><div class="d">Checks a structured claim against the policy book and returns a coverage opinion.</div></td><td>Claims</td><td>Claims Platform</td><td>Google<div class="d">gemini-3.5-flash-lite</div></td><td>2</td><td><a href="policy-coverage/.well-known/agent-card.json"><code>policy-coverage</code></a></td></tr>
+<tr><td><b>Claim Adjudicator</b><div class="d">Orchestrates claim intake and policy coverage agents, then issues an approve/deny/refer decision.</div></td><td>Claims</td><td>Claims Platform</td><td>Anthropic<div class="d">claude-opus-5</div></td><td>1</td><td><a href="claim-adjudicator/.well-known/agent-card.json"><code>claim-adjudicator</code></a></td></tr>
+<tr><td><b>Fraud Signal Agent</b><div class="d">Scores a claim for fraud indicators and explains which signals fired.</div></td><td>Claims</td><td>Special Investigations</td><td>Self-hosted<div class="d">llama-3.3-70b</div></td><td>2</td><td><a href="fraud-signal/.well-known/agent-card.json"><code>fraud-signal</code></a></td></tr>
+<tr><td><b>Damage Estimator</b><div class="d">Parses contractor quotes and estimates repair cost ranges from a loss description.</div></td><td>Claims</td><td>Claims Platform</td><td>Anthropic<div class="d">claude-sonnet-5</div></td><td>2</td><td><a href="damage-estimator/.well-known/agent-card.json"><code>damage-estimator</code></a></td></tr>
+<tr><td><b>Underwriting Risk Scorer</b><div class="d">Scores a new-business applicant and proposes a premium band.</div></td><td>Underwriting</td><td>Underwriting Data Science</td><td>OpenAI<div class="d">gpt-5</div></td><td>2</td><td><a href="risk-scoring/.well-known/agent-card.json"><code>risk-scoring</code></a></td></tr>
+<tr><td><b>Property Inspection Agent</b><div class="d">Reads inspection photographs and flags condition issues relevant to underwriting.</div></td><td>Underwriting</td><td>Underwriting Data Science</td><td>Google<div class="d">gemini-3.5-pro</div></td><td>1</td><td><a href="property-inspection/.well-known/agent-card.json"><code>property-inspection</code></a></td></tr>
+<tr><td><b>Customer Communications Agent</b><div class="d">Drafts claimant-facing correspondence in plain language at a set reading level.</div></td><td>Servicing</td><td>Customer Experience</td><td>Anthropic<div class="d">claude-haiku-4-5</div></td><td>2</td><td><a href="customer-comms/.well-known/agent-card.json"><code>customer-comms</code></a></td></tr>
+<tr><td><b>Document Intake Agent</b><div class="d">Classifies and extracts text from inbound documents before routing them.</div></td><td>Servicing</td><td>Shared Services</td><td>Self-hosted<div class="d">docling-v2</div></td><td>2</td><td><a href="document-ocr/.well-known/agent-card.json"><code>document-ocr</code></a></td></tr>
+<tr><td><b>Incident Triage Agent</b><div class="d">Classifies production alerts and proposes the matching runbook step.</div></td><td>Platform</td><td>SRE</td><td>Anthropic<div class="d">claude-sonnet-5</div></td><td>2</td><td><a href="incident-triage/.well-known/agent-card.json"><code>incident-triage</code></a></td></tr>
+<tr><td><b>Data Quality Agent</b><div class="d">Profiles pipeline output and reports drift and schema violations.</div></td><td>Platform</td><td>Data Engineering</td><td>Self-hosted<div class="d">mistral-large</div></td><td>1</td><td><a href="data-quality/.well-known/agent-card.json"><code>data-quality</code></a></td></tr>
+</table>
+<h2>Well-known URLs</h2>
+<pre>https://cruse-sweeney.github.io/agent-cards/claim-intake/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/policy-coverage/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/claim-adjudicator/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/fraud-signal/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/damage-estimator/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/risk-scoring/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/property-inspection/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/customer-comms/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/document-ocr/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/incident-triage/.well-known/agent-card.json
+https://cruse-sweeney.github.io/agent-cards/data-quality/.well-known/agent-card.json</pre>
