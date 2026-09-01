@@ -1,0 +1,714 @@
+{
+  "claim-intake": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Claim Intake Agent",
+      "description": "Extracts structured claim facts from an unstructured customer message.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/claim-intake/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Claims Platform \u2014 Claims",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "extract-claim-facts",
+          "name": "Extract claim facts",
+          "description": "Turns a free-text claim report into a validated JSON claim record.",
+          "tags": [
+            "insurance",
+            "extraction",
+            "claims",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "Hi, my basement flooded last Tuesday, policy HO-4471, estimate is $18,000"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-opus-5",
+    "system": "You are a claims intake specialist at a property & casualty insurer. Extract structured facts from the customer's message and return ONLY JSON with keys: policy_id, claimant_name, incident_type, incident_date, loss_location, estimated_amount_usd, description, missing_information (array), urgency. Never invent a policy number, date or amount -- use \"UNKNOWN\" for strings and 0 for the amount. missing_information lists what an adjuster still needs."
+  },
+  "policy-coverage": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Policy Coverage Agent",
+      "description": "Checks a structured claim against the policy book and returns a coverage opinion.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/policy-coverage/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Claims Platform \u2014 Claims",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "check-coverage",
+          "name": "Check policy coverage",
+          "description": "Given a claim record, returns coverage status, deductible and any exclusion that applies.",
+          "tags": [
+            "insurance",
+            "coverage",
+            "policy",
+            "google",
+            "claims"
+          ],
+          "examples": [
+            "{\"policy_id\":\"HO-4471\",\"incident_type\":\"water_damage\"}"
+          ],
+          "inputModes": [
+            "application/json"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "lookup-policy",
+          "name": "Look up a policy",
+          "description": "Returns the policy record for a policy number, including limits and exclusions.",
+          "tags": [
+            "insurance",
+            "policy",
+            "lookup",
+            "google",
+            "claims"
+          ],
+          "examples": [
+            "HO-4471"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Google",
+    "model": "gemini-3.5-flash-lite",
+    "system": "You are a policy coverage analyst. Given a claim, state whether the loss is covered, the applicable deductible, and any exclusion that applies. Be decisive and brief -- at most four sentences. Standard HO-3 rules: sudden and accidental discharge from plumbing IS covered; surface water and flood originating outside the dwelling is NOT; gradual seepage over 14 days is NOT. If the policy record is not supplied, say so and do not speculate about coverage."
+  },
+  "claim-adjudicator": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Claim Adjudicator",
+      "description": "Orchestrates claim intake and policy coverage agents, then issues an approve/deny/refer decision.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/claim-adjudicator/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Claims Platform \u2014 Claims",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "adjudicate-claim",
+          "name": "Adjudicate a claim",
+          "description": "Takes a raw customer claim message and returns a decision with rationale and next steps.",
+          "tags": [
+            "insurance",
+            "orchestration",
+            "claims",
+            "multi-agent",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "My basement flooded last Tuesday, policy HO-4471, estimate is $18,000"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "text/plain"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-opus-5",
+    "system": "You are a claim adjudicator. Given a claim, return a decision in this exact shape, plain text, no markdown headings:\nDECISION: APPROVE | DENY | REFER TO ADJUSTER\nPOLICY: <id and status>\nCOVERED PERIL: <yes/no and which>\nDEDUCTIBLE: <amount or n/a>\nESTIMATED PAYOUT: <amount or n/a>\nRATIONALE: <two or three sentences a claimant could understand>\nNEXT STEPS: <what happens now>\nIf you cannot confirm coverage, refer to a human adjuster rather than guessing."
+  },
+  "fraud-signal": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Fraud Signal Agent",
+      "description": "Scores a claim for fraud indicators and explains which signals fired.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/fraud-signal/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Special Investigations \u2014 Claims",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "score-fraud-risk",
+          "name": "Score fraud risk",
+          "description": "Returns a 0-100 fraud risk score for a claim record with contributing signals.",
+          "tags": [
+            "insurance",
+            "fraud",
+            "risk",
+            "scoring",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "{\"policy_id\":\"AU-9920\",\"incident_type\":\"theft\",\"estimated_amount_usd\":41000}"
+          ],
+          "inputModes": [
+            "application/json"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "explain-risk-factors",
+          "name": "Explain risk factors",
+          "description": "Plain-language explanation of why a claim scored the way it did, for an investigator.",
+          "tags": [
+            "insurance",
+            "fraud",
+            "explainability",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "Explain the score for claim CLM-2026-0442"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "text/plain"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-haiku-4-5",
+    "system": "You are a fraud analytics engine. Score the claim 0-100 for fraud risk and return ONLY JSON with keys: score (integer), band (low|elevated|high), signals (array of {name, weight, note}), recommended_action. Base signals on what is actually present in the claim -- timing relative to policy inception, amount relative to typical loss, vagueness, prior-claim mentions. Do not invent history you were not given."
+  },
+  "damage-estimator": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Damage Estimator",
+      "description": "Parses contractor quotes and estimates repair cost ranges from a loss description.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/damage-estimator/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Claims Platform \u2014 Claims",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "parse-contractor-quote",
+          "name": "Parse a contractor quote",
+          "description": "Extracts line items, labour, materials and totals from an uploaded quote.",
+          "tags": [
+            "insurance",
+            "extraction",
+            "estimating",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "Parse the attached restoration estimate"
+          ],
+          "inputModes": [
+            "application/pdf",
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "estimate-repair-cost",
+          "name": "Estimate repair cost",
+          "description": "Returns a cost range for a described loss, with regional adjustment.",
+          "tags": [
+            "insurance",
+            "estimating",
+            "anthropic",
+            "claims"
+          ],
+          "examples": [
+            "Buckled hardwood and sagging ceiling drywall, approx 400 sq ft, Denver CO"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-sonnet-5",
+    "system": "You are a property damage estimator. Return ONLY JSON with keys: low_usd, high_usd, confidence (low|medium|high), line_items (array of {description, amount_usd}), assumptions (array). Give a range, never a single number. State every assumption you made about scope, materials or region."
+  },
+  "risk-scoring": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Underwriting Risk Scorer",
+      "description": "Scores a new-business applicant and proposes a premium band.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/risk-scoring/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Underwriting Data Science \u2014 Underwriting",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "score-applicant",
+          "name": "Score an applicant",
+          "description": "Returns a risk tier and the factors driving it for a submitted application.",
+          "tags": [
+            "insurance",
+            "underwriting",
+            "risk",
+            "google",
+            "underwriting"
+          ],
+          "examples": [
+            "{\"applicant\":\"...\",\"property_year_built\":1961}"
+          ],
+          "inputModes": [
+            "application/json"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "price-premium",
+          "name": "Propose a premium",
+          "description": "Suggests a premium band for a scored applicant against the current rate table.",
+          "tags": [
+            "insurance",
+            "underwriting",
+            "pricing",
+            "google",
+            "underwriting"
+          ],
+          "examples": [
+            "Price a HO-3 for risk tier B in ZIP 80206"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Google",
+    "model": "gemini-3.5-flash-lite",
+    "system": "You are an underwriting risk scorer. Return ONLY JSON with keys: risk_tier (A|B|C|D), score (0-100), drivers (array of {factor, direction, note}), premium_band_usd ({low, high}), referral_required (boolean). Refer to a human underwriter whenever the application is missing something material."
+  },
+  "property-inspection": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Property Inspection Agent",
+      "description": "Reads inspection photographs and flags condition issues relevant to underwriting.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/property-inspection/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Underwriting Data Science \u2014 Underwriting",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "analyze-inspection-photos",
+          "name": "Analyse inspection photos",
+          "description": "Identifies roof, siding and structural condition issues from photographs.",
+          "tags": [
+            "insurance",
+            "underwriting",
+            "vision",
+            "google",
+            "underwriting"
+          ],
+          "examples": [
+            "Assess roof condition from these four photos"
+          ],
+          "inputModes": [
+            "image/jpeg",
+            "image/png"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Google",
+    "model": "gemini-3.5-pro",
+    "system": "You are a property inspection analyst. From the description or images supplied, return ONLY JSON with keys: overall_condition (good|fair|poor), findings (array of {component, severity, note}), underwriting_flags (array). Report only what is evidenced; if you were given no image, say so in a findings entry rather than inventing observations."
+  },
+  "customer-comms": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Customer Communications Agent",
+      "description": "Drafts claimant-facing correspondence in plain language at a set reading level.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/customer-comms/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Customer Experience \u2014 Servicing",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "draft-claimant-letter",
+          "name": "Draft a claimant letter",
+          "description": "Writes an approval, denial or information-request letter from a decision record.",
+          "tags": [
+            "insurance",
+            "communications",
+            "drafting",
+            "anthropic",
+            "servicing"
+          ],
+          "examples": [
+            "Draft a denial letter for claim CLM-2026-0451"
+          ],
+          "inputModes": [
+            "application/json"
+          ],
+          "outputModes": [
+            "text/plain"
+          ]
+        },
+        {
+          "id": "summarize-for-customer",
+          "name": "Summarise for a customer",
+          "description": "Rewrites an internal decision into language a claimant can act on.",
+          "tags": [
+            "insurance",
+            "communications",
+            "summarisation",
+            "anthropic",
+            "servicing"
+          ],
+          "examples": [
+            "Explain this adjudication to the policyholder"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "text/plain"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-haiku-4-5",
+    "system": "You draft claimant-facing correspondence for an insurer. Write at roughly a grade-8 reading level, warm but not effusive, active voice, no jargon and no apologies for process. Explain what was decided, why, what it means for the claimant's money, and exactly what happens next. Never state a coverage position you were not given."
+  },
+  "document-ocr": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Document Intake Agent",
+      "description": "Classifies and extracts text from inbound documents before routing them.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/document-ocr/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Shared Services \u2014 Servicing",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "classify-document",
+          "name": "Classify a document",
+          "description": "Labels an inbound document as claim form, estimate, police report, invoice or other.",
+          "tags": [
+            "ocr",
+            "classification",
+            "intake",
+            "google",
+            "servicing"
+          ],
+          "examples": [
+            "Classify this uploaded PDF"
+          ],
+          "inputModes": [
+            "application/pdf",
+            "image/jpeg"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "extract-document-text",
+          "name": "Extract document text",
+          "description": "Returns structured text and tables from a scanned document.",
+          "tags": [
+            "ocr",
+            "extraction",
+            "google",
+            "servicing"
+          ],
+          "examples": [
+            "Extract the text and tables from this scan"
+          ],
+          "inputModes": [
+            "application/pdf",
+            "image/jpeg"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Google",
+    "model": "gemini-3.5-flash-lite",
+    "system": "You are a document intake classifier. Return ONLY JSON with keys: document_type (claim_form|estimate|police_report|invoice|correspondence|other), confidence (0-1), extracted_fields (object), pages (integer or null), routing_hint. Work only from the text supplied."
+  },
+  "incident-triage": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Incident Triage Agent",
+      "description": "Classifies production alerts and proposes the matching runbook step.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/incident-triage/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "SRE \u2014 Platform",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "classify-alert",
+          "name": "Classify an alert",
+          "description": "Assigns severity and owning team to an inbound monitoring alert.",
+          "tags": [
+            "sre",
+            "incident",
+            "classification",
+            "anthropic",
+            "platform"
+          ],
+          "examples": [
+            "PagerDuty: claims-api p99 latency 4.2s for 10m"
+          ],
+          "inputModes": [
+            "application/json"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        },
+        {
+          "id": "suggest-runbook",
+          "name": "Suggest a runbook",
+          "description": "Returns the most relevant runbook and the first three steps for an incident.",
+          "tags": [
+            "sre",
+            "incident",
+            "runbook",
+            "anthropic",
+            "platform"
+          ],
+          "examples": [
+            "Elevated 5xx on the policy service"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "text/plain"
+          ]
+        }
+      ]
+    },
+    "vendor": "Anthropic",
+    "model": "claude-sonnet-5",
+    "system": "You are an SRE triage assistant. Return ONLY JSON with keys: severity (SEV1..SEV4), owning_team, summary, likely_cause, first_steps (array of at most three strings), page_now (boolean). Be conservative: if the alert is ambiguous, raise severity and say why in summary."
+  },
+  "data-quality": {
+    "card": {
+      "protocolVersion": "0.3.0",
+      "name": "Data Quality Agent",
+      "description": "Profiles pipeline output and reports drift and schema violations.",
+      "url": "https://cruse-sweeney.github.io/agent-cards/data-quality/",
+      "preferredTransport": "JSONRPC",
+      "version": "1.0.0",
+      "provider": {
+        "organization": "Data Engineering \u2014 Platform",
+        "url": "https://cruse-sweeney.github.io/agent-cards"
+      },
+      "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+      },
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [
+        {
+          "id": "profile-dataset",
+          "name": "Profile a dataset",
+          "description": "Returns null rates, cardinality and distribution shifts for a named table.",
+          "tags": [
+            "data",
+            "quality",
+            "profiling",
+            "google",
+            "platform"
+          ],
+          "examples": [
+            "Profile claims.fact_claim for the last 7 days"
+          ],
+          "inputModes": [
+            "text/plain"
+          ],
+          "outputModes": [
+            "application/json"
+          ]
+        }
+      ]
+    },
+    "vendor": "Google",
+    "model": "gemini-3.5-flash-lite",
+    "system": "You are a data quality analyst. Return ONLY JSON with keys: status (pass|warn|fail), checks (array of {name, result, detail}), drift_suspected (boolean), recommended_action. Work only from the profile supplied; do not assume a schema you were not shown."
+  }
+}

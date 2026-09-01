@@ -30,7 +30,7 @@
         "fraud",
         "risk",
         "scoring",
-        "self-hosted",
+        "anthropic",
         "claims"
       ],
       "examples": [
@@ -51,7 +51,7 @@
         "insurance",
         "fraud",
         "explainability",
-        "self-hosted",
+        "anthropic",
         "claims"
       ],
       "examples": [

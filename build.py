@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """Generate A2A agent cards for the Gravitee Agent Catalog.
 
-These are catalog fixtures: real, spec-valid A2A agent cards served as static
-files so Gravitee can discover them at a stable public URL. The agents behind
-them are not running -- the catalog reads cards, it does not invoke agents.
+Emits two things from one source of truth:
 
-    python3 build.py          # writes ./<slug>/.well-known/agent-card.json + index.html
+  * static cards under ./<slug>/.well-known/  -- served by GitHub Pages, so the
+    Gravitee catalog can discover agents even if nothing else is deployed
+  * worker/agents.json -- the manifest the Cloudflare Worker uses to actually
+    answer JSON-RPC message/send for each agent
+
+    python3 build.py
+    AGENT_LIVE=https://agents.example.workers.dev python3 build.py
 """
 import json
 import os
 import shutil
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SITE = "https://cruse-sweeney.github.io/agent-cards"
+SITE = os.environ.get("AGENT_SITE", "https://cruse-sweeney.github.io/agent-cards")
+# Where the *callable* agents live once the worker is deployed.
+LIVE = os.environ.get("AGENT_LIVE", SITE)
 
 # A deliberately sprawling estate: four domains, four vendors, seven owning
 # teams. That spread is the point -- a catalog of three agents makes no
@@ -55,7 +61,7 @@ AGENTS = [
                   inn=["text/plain"], out=["text/plain"]),
          ]),
     dict(slug="fraud-signal", name="Fraud Signal Agent", domain="Claims",
-         vendor="Self-hosted", model="llama-3.3-70b", team="Special Investigations",
+         vendor="Anthropic", model="claude-haiku-4-5", team="Special Investigations",
          desc="Scores a claim for fraud indicators and explains which signals fired.",
          skills=[
              dict(id="score-fraud-risk", name="Score fraud risk",
@@ -87,7 +93,7 @@ AGENTS = [
 
     # ---- Underwriting ---------------------------------------------------
     dict(slug="risk-scoring", name="Underwriting Risk Scorer", domain="Underwriting",
-         vendor="OpenAI", model="gpt-5", team="Underwriting Data Science",
+         vendor="Google", model="gemini-3.5-flash-lite", team="Underwriting Data Science",
          desc="Scores a new-business applicant and proposes a premium band.",
          skills=[
              dict(id="score-applicant", name="Score an applicant",
@@ -129,7 +135,7 @@ AGENTS = [
                   inn=["text/plain"], out=["text/plain"]),
          ]),
     dict(slug="document-ocr", name="Document Intake Agent", domain="Servicing",
-         vendor="Self-hosted", model="docling-v2", team="Shared Services",
+         vendor="Google", model="gemini-3.5-flash-lite", team="Shared Services",
          desc="Classifies and extracts text from inbound documents before routing them.",
          skills=[
              dict(id="classify-document", name="Classify a document",
@@ -161,7 +167,7 @@ AGENTS = [
                   inn=["text/plain"], out=["text/plain"]),
          ]),
     dict(slug="data-quality", name="Data Quality Agent", domain="Platform",
-         vendor="Self-hosted", model="mistral-large", team="Data Engineering",
+         vendor="Google", model="gemini-3.5-flash-lite", team="Data Engineering",
          desc="Profiles pipeline output and reports drift and schema violations.",
          skills=[
              dict(id="profile-dataset", name="Profile a dataset",
@@ -173,13 +179,85 @@ AGENTS = [
 ]
 
 
+
+# One system prompt per agent. This is what makes an agent an agent -- the card
+# advertises the skill, this decides how it behaves. Kept short deliberately:
+# every one of these is doing real work, none of them is faking a response.
+SYSTEMS = {
+ "claim-intake":
+   "You are a claims intake specialist at a property & casualty insurer. Extract "
+   "structured facts from the customer's message and return ONLY JSON with keys: "
+   "policy_id, claimant_name, incident_type, incident_date, loss_location, "
+   "estimated_amount_usd, description, missing_information (array), urgency. "
+   "Never invent a policy number, date or amount -- use \"UNKNOWN\" for strings and 0 "
+   "for the amount. missing_information lists what an adjuster still needs.",
+ "policy-coverage":
+   "You are a policy coverage analyst. Given a claim, state whether the loss is "
+   "covered, the applicable deductible, and any exclusion that applies. Be decisive "
+   "and brief -- at most four sentences. Standard HO-3 rules: sudden and accidental "
+   "discharge from plumbing IS covered; surface water and flood originating outside "
+   "the dwelling is NOT; gradual seepage over 14 days is NOT. If the policy record "
+   "is not supplied, say so and do not speculate about coverage.",
+ "claim-adjudicator":
+   "You are a claim adjudicator. Given a claim, return a decision in this exact "
+   "shape, plain text, no markdown headings:\n"
+   "DECISION: APPROVE | DENY | REFER TO ADJUSTER\nPOLICY: <id and status>\n"
+   "COVERED PERIL: <yes/no and which>\nDEDUCTIBLE: <amount or n/a>\n"
+   "ESTIMATED PAYOUT: <amount or n/a>\nRATIONALE: <two or three sentences a "
+   "claimant could understand>\nNEXT STEPS: <what happens now>\n"
+   "If you cannot confirm coverage, refer to a human adjuster rather than guessing.",
+ "fraud-signal":
+   "You are a fraud analytics engine. Score the claim 0-100 for fraud risk and return "
+   "ONLY JSON with keys: score (integer), band (low|elevated|high), signals (array of "
+   "{name, weight, note}), recommended_action. Base signals on what is actually present "
+   "in the claim -- timing relative to policy inception, amount relative to typical loss, "
+   "vagueness, prior-claim mentions. Do not invent history you were not given.",
+ "damage-estimator":
+   "You are a property damage estimator. Return ONLY JSON with keys: low_usd, high_usd, "
+   "confidence (low|medium|high), line_items (array of {description, amount_usd}), "
+   "assumptions (array). Give a range, never a single number. State every assumption "
+   "you made about scope, materials or region.",
+ "risk-scoring":
+   "You are an underwriting risk scorer. Return ONLY JSON with keys: risk_tier (A|B|C|D), "
+   "score (0-100), drivers (array of {factor, direction, note}), premium_band_usd "
+   "({low, high}), referral_required (boolean). Refer to a human underwriter whenever "
+   "the application is missing something material.",
+ "property-inspection":
+   "You are a property inspection analyst. From the description or images supplied, return "
+   "ONLY JSON with keys: overall_condition (good|fair|poor), findings (array of "
+   "{component, severity, note}), underwriting_flags (array). Report only what is "
+   "evidenced; if you were given no image, say so in a findings entry rather than "
+   "inventing observations.",
+ "customer-comms":
+   "You draft claimant-facing correspondence for an insurer. Write at roughly a grade-8 "
+   "reading level, warm but not effusive, active voice, no jargon and no apologies for "
+   "process. Explain what was decided, why, what it means for the claimant's money, and "
+   "exactly what happens next. Never state a coverage position you were not given.",
+ "document-ocr":
+   "You are a document intake classifier. Return ONLY JSON with keys: document_type "
+   "(claim_form|estimate|police_report|invoice|correspondence|other), confidence "
+   "(0-1), extracted_fields (object), pages (integer or null), routing_hint. Work only "
+   "from the text supplied.",
+ "incident-triage":
+   "You are an SRE triage assistant. Return ONLY JSON with keys: severity (SEV1..SEV4), "
+   "owning_team, summary, likely_cause, first_steps (array of at most three strings), "
+   "page_now (boolean). Be conservative: if the alert is ambiguous, raise severity and "
+   "say why in summary.",
+ "data-quality":
+   "You are a data quality analyst. Return ONLY JSON with keys: status (pass|warn|fail), "
+   "checks (array of {name, result, detail}), drift_suspected (boolean), "
+   "recommended_action. Work only from the profile supplied; do not assume a schema you "
+   "were not shown.",
+}
+
+
 def card(a):
     """A spec-valid A2A 0.3.0 agent card."""
     return {
         "protocolVersion": "0.3.0",
         "name": a["name"],
         "description": a["desc"],
-        "url": "%s/%s/" % (SITE, a["slug"]),
+        "url": "%s/%s/" % (LIVE, a["slug"]),
         "preferredTransport": "JSONRPC",
         "version": "1.0.0",
         "provider": {
@@ -268,6 +346,23 @@ These are spec-valid cards at stable URLs; the agents behind them are not runnin
 
     with open(os.path.join(BASE, "index.html"), "w") as fh:
         fh.write(html)
+
+
+    # Manifest for the worker: card + how to actually answer for each agent.
+    wdir = os.path.join(BASE, "worker")
+    os.makedirs(wdir, exist_ok=True)
+    manifest = {
+        a["slug"]: {
+            "card": card(a),
+            "vendor": a["vendor"],
+            "model": a["model"],
+            "system": SYSTEMS[a["slug"]],
+        }
+        for a in AGENTS
+    }
+    with open(os.path.join(wdir, "agents.json"), "w") as fh:
+        json.dump(manifest, fh, indent=2)
+        fh.write("\n")
 
     print("%d agents, %d skills" % (len(AGENTS), total_skills))
     for a in AGENTS:

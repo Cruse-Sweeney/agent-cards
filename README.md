@@ -34,3 +34,13 @@ python3 build.py    # rewrites every <slug>/.well-known/ and index.html
 
 `.nojekyll` is required: GitHub Pages runs Jekyll by default, which strips
 directories beginning with a dot, including `.well-known`.
+
+## Making them live
+
+The cards above are static. To make the agents actually answer `message/send`,
+deploy `worker/` — one Cloudflare Worker serves all eleven, backed by Claude and
+Gemini. See [worker/DEPLOY.md](worker/DEPLOY.md).
+
+Cards stay public (catalog discovery needs to read them); `message/send` is
+gated on a shared secret, because a public unauthenticated agent endpoint that
+spends your model budget is the exact failure this demo exists to warn about.

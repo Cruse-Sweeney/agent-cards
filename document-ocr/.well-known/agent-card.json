@@ -29,7 +29,7 @@
         "ocr",
         "classification",
         "intake",
-        "self-hosted",
+        "google",
         "servicing"
       ],
       "examples": [
@@ -50,7 +50,7 @@
       "tags": [
         "ocr",
         "extraction",
-        "self-hosted",
+        "google",
         "servicing"
       ],
       "examples": [
